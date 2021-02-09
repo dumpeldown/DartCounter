@@ -21,7 +21,7 @@ public class DartLogic {
     }
 
     public boolean isFinishable() {
-        if (DartGui.doubleOutEnabled) {
+        if (!DartGui.doubleOutEnabled) {
             return true;
         }
         //wenn die pointRemainign nach den geworfenen punkten 1 wäre, dann ist es nicht mit
@@ -31,16 +31,18 @@ public class DartLogic {
 
     public void reset() {
         aktuellerSpielerIndex = 0;
-        DartGui.ersterWurf.setText("");
-        DartGui.zweiterWurf.setText("");
-        DartGui.dritterWurf.setText("");
+        DartGui.wuerfeTextFields[0].setText("");
+        DartGui.wuerfeTextFields[1].setText("");
+        DartGui.wuerfeTextFields[2].setText("");
         DartGui.tglDouble.setSelected(false);
         DartGui.tglTriple.setSelected(false);
         for (DartSpieler dartSpieler : alleSpieler) {
             dartSpieler = new DartSpieler();
         }
+
         for (JLabel label : DartGui.pointsRemainingLabels) {
             label.setText("501");
+            label.setBorder(null);
         }
 
         DartGui.comboBoxAnzahlSpieler.setEnabled(true);
@@ -58,39 +60,39 @@ public class DartLogic {
         int summe;
         int absFirst = 0, absSec = 0, absThird = 0;
         //Prüfen, ob werte zwischen 0 und 20 eingegeben wurden.
-        if ((Integer.parseInt(DartGui.ersterWurf.getText().replace("Double ", "")
-                .replace("Triple ", "")) > 20) || Integer.parseInt(DartGui.ersterWurf.getText().replace("Double ", "")
+        if ((Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replace("Double ", "")
+                .replace("Triple ", "")) > 20) || Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replace("Double ", "")
                 .replace("Triple ", "")) < 0) {
-            JOptionPane.showConfirmDialog(DartGui.frameDartCounter, "Du hast ungültige Werte " +
+            JOptionPane.showMessageDialog(DartGui.frameDartCounter, "Du hast ungültige Werte " +
                     "eingetragen!");
             return new int[]{-1, -1, -1};
         }
 
         //get text from textfields.
-        if (DartGui.ersterWurf.getText().contains("Double"))
-            absFirst = 2 * Integer.parseInt(DartGui.ersterWurf.getText().replaceAll("Double ", ""));
-        else if (DartGui.ersterWurf.getText().contains("Triple"))
-            absFirst = 3 * Integer.parseInt(DartGui.ersterWurf.getText().replaceAll("Triple ", ""));
+        if (DartGui.wuerfeTextFields[0].getText().contains("Double"))
+            absFirst = 2 * Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replaceAll("Double ", ""));
+        else if (DartGui.wuerfeTextFields[0].getText().contains("Triple"))
+            absFirst = 3 * Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replaceAll("Triple ", ""));
         else try {
-                absFirst = Integer.parseInt(DartGui.ersterWurf.getText());
+                absFirst = Integer.parseInt(DartGui.wuerfeTextFields[0].getText());
             } catch (NumberFormatException ignored) {
             }
-        if (DartGui.zweiterWurf.getText().contains("Double")) {
-            absSec = 2 * Integer.parseInt(DartGui.zweiterWurf.getText().replaceAll("Double ", ""));
-        } else if (DartGui.zweiterWurf.getText().contains("Triple")) {
-            absSec = 3 * Integer.parseInt(DartGui.zweiterWurf.getText().replaceAll("Triple ", ""));
+        if (DartGui.wuerfeTextFields[1].getText().contains("Double")) {
+            absSec = 2 * Integer.parseInt(DartGui.wuerfeTextFields[1].getText().replaceAll("Double ", ""));
+        } else if (DartGui.wuerfeTextFields[1].getText().contains("Triple")) {
+            absSec = 3 * Integer.parseInt(DartGui.wuerfeTextFields[1].getText().replaceAll("Triple ", ""));
         } else {
             try {
-                absSec = Integer.parseInt(DartGui.zweiterWurf.getText());
+                absSec = Integer.parseInt(DartGui.wuerfeTextFields[1].getText());
             } catch (NumberFormatException ignored) {
             }
         }
-        if (DartGui.dritterWurf.getText().contains("Double"))
-            absThird = 2 * Integer.parseInt(DartGui.dritterWurf.getText().replaceAll("Double ", ""));
-        else if (DartGui.dritterWurf.getText().contains("Triple"))
-            absThird = 3 * Integer.parseInt(DartGui.dritterWurf.getText().replaceAll("Triple ", ""));
+        if (DartGui.wuerfeTextFields[2].getText().contains("Double"))
+            absThird = 2 * Integer.parseInt(DartGui.wuerfeTextFields[2].getText().replaceAll("Double ", ""));
+        else if (DartGui.wuerfeTextFields[2].getText().contains("Triple"))
+            absThird = 3 * Integer.parseInt(DartGui.wuerfeTextFields[2].getText().replaceAll("Triple ", ""));
         else try {
-                absThird = Integer.parseInt(DartGui.dritterWurf.getText());
+                absThird = Integer.parseInt(DartGui.wuerfeTextFields[2].getText());
             } catch (NumberFormatException ignored) {
             }
         summe = absFirst + absSec + absThird;
@@ -114,7 +116,7 @@ public class DartLogic {
         return gesamt > Integer.parseInt(DartGui.pointsRemainingLabels[dartLogic.aktuellerSpielerIndex].getText());
     }
 
-    public void addToTable(int summe, int average) {
+    public void addToTable(int summe, double average) {
         try {
             DartGui.statsTable.getModel().setValueAt(summe, 0, aktuellerSpielerIndex);
             DartGui.statsTable.getModel().setValueAt(average, 1, aktuellerSpielerIndex);
@@ -123,8 +125,9 @@ public class DartLogic {
             DartGui.statsTable.getModel().setValueAt(aktuellerSpieler.alleWuerfe.size(), 3,
                     aktuellerSpielerIndex);
         } catch (NumberFormatException e) {
-            JOptionPane.showConfirmDialog(DartGui.frameDartCounter, "Bitte gib ganze Zahlen als Werte ein!",
-                    "Fehlermeldung.", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(DartGui.frameDartCounter, "Bitte gib ganze Zahlen als Werte ein!",
+                    "Fehlermeldung.", JOptionPane.OK_OPTION);
         }
     }
+
 }
