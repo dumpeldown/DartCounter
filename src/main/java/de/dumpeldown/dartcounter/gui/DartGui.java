@@ -1,14 +1,14 @@
 package de.dumpeldown.dartcounter.gui;
 
 import de.dumpeldown.dartcounter.logic.DartLogic;
+import de.dumpeldown.dartcounter.logic.DartSpieler;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.Window.Type;
-import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class DartGui {
     static JTable table;
@@ -28,19 +28,14 @@ public class DartGui {
     public static DefaultTableModel statsModel;
     public static JComboBox<Integer> comboPunkte;
     public static JComboBox<Integer> comboBoxAnzahlSpieler;
-    public static JLabel[] pointsRemaining = new JLabel[]{new JLabel("0"), new JLabel("0"), new JLabel("0")};
-    public static int aktuellerSpieler = 0;
-    public static List<Integer>[] alleWuerfe = new List[]{new ArrayList<Integer>(),
-            new ArrayList<Integer>(), new ArrayList<Integer>()};
-    public static List<Integer>[] summen = new List[]{new ArrayList<Integer>(),
-            new ArrayList<Integer>(), new ArrayList<Integer>()};
-    public static int[] hoechsterWurf = new int[]{0, 0, 0};
+    public static JFrame frameDartCounter;
+    public static JLabel[] pointsRemainingLabels = new JLabel[]{new JLabel("0"), new JLabel("0"), new JLabel("0")};
 
     //TODO:
     // DartLogic-Instanz als Singleton.
     // Hightlight auf den Spieler, der gerade am Zug ist.
     public static void main(String[] args) {
-        JFrame frameDartCounter = initFrame();
+        initFrame();
         JButton resetButton = initResetButton();
         JButton saveButton = initSaveButton();
         JCheckBox checkBoxDoubleOut = initDoubleOutCheckBox();
@@ -98,13 +93,13 @@ public class DartGui {
         frameDartCounter.getContentPane().add(tglDouble);
         frameDartCounter.getContentPane().add(tglTriple);
         frameDartCounter.getContentPane().add(anzahlWuerfeLabel);
-        frameDartCounter.getContentPane().add(pointsRemaining[0]);
-        frameDartCounter.getContentPane().add(pointsRemaining[1]);
+        frameDartCounter.getContentPane().add(pointsRemainingLabels[0]);
+        frameDartCounter.getContentPane().add(pointsRemainingLabels[1]);
         frameDartCounter.getContentPane().add(lblPunktzahl);
         frameDartCounter.getContentPane().add(checkBoxDoubleOut);
         frameDartCounter.getContentPane().add(saveButton);
         frameDartCounter.getContentPane().add(resetButton);
-        frameDartCounter.getContentPane().add(pointsRemaining[2]);
+        frameDartCounter.getContentPane().add(pointsRemainingLabels[2]);
 
         frameDartCounter.setVisible(true);
         frameDartCounter.setSize(600, 400);
@@ -114,17 +109,18 @@ public class DartGui {
     }
 
     private static void initPointsRemainingLabel() {
-        pointsRemaining[0].setBounds(314, 78, 46, 14);
-        pointsRemaining[1].setBounds(403, 78, 46, 14);
-        pointsRemaining[2].setBounds(498, 78, 46, 14);
+        pointsRemainingLabels[0].setBounds(314, 78, 46, 14);
+        pointsRemainingLabels[1].setBounds(403, 78, 46, 14);
+        pointsRemainingLabels[2].setBounds(498, 78, 46, 14);
     }
 
-    private static JLabel initAnzahlWuerfeLabel(){
+    private static JLabel initAnzahlWuerfeLabel() {
         JLabel label = new JLabel("Wuerfe");
         label.setFont(new Font("Tahoma", Font.BOLD, 11));
         label.setBounds(237, 164, 46, 14);
         return label;
     }
+
     private static void initTripleToogleButton() {
         tglTriple = new JToggleButton("Triple");
         tglTriple.setBounds(262, 255, 121, 23);
@@ -188,9 +184,12 @@ public class DartGui {
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {}
+            public void keyReleased(KeyEvent e) {
+            }
+
             @Override
-            public void keyPressed(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) {
+            }
         });
     }
 
@@ -211,10 +210,14 @@ public class DartGui {
                     }
                 }
             }
+
             @Override
-            public void keyPressed(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) {
+            }
+
             @Override
-            public void keyReleased(KeyEvent e){}
+            public void keyReleased(KeyEvent e) {
+            }
         });
     }
 
@@ -229,6 +232,7 @@ public class DartGui {
     }
 
     private static void handleComboBox() {
+        DartLogic dartLogic = DartLogic.getInstance();
 
         switch (comboBoxAnzahlSpieler.getSelectedIndex() + 1) {
             case 1 -> {
@@ -238,6 +242,9 @@ public class DartGui {
                 spieler3.setEnabled(false);
                 spieler3.setText("Spieler 3");
                 anzahlSpieler = 1;
+                dartLogic.alleSpieler = new DartSpieler[]{
+                        new DartSpieler()
+                };
             }
             case 2 -> {
                 spieler1.setEnabled(true);
@@ -246,12 +253,21 @@ public class DartGui {
                 spieler3.setEnabled(false);
                 spieler3.setText("Spieler 3");
                 anzahlSpieler = 2;
+                dartLogic.alleSpieler = new DartSpieler[]{
+                        new DartSpieler(),
+                        new DartSpieler()
+                };
             }
             case 3 -> {
                 spieler1.setEnabled(true);
                 spieler2.setEnabled(true);
                 spieler3.setEnabled(true);
                 anzahlSpieler = 3;
+                dartLogic.alleSpieler = new DartSpieler[]{
+                        new DartSpieler(),
+                        new DartSpieler(),
+                        new DartSpieler()
+                };
             }
             default -> System.out.println("DartGui.handleComboBox: DEFAÚLT CASE");
         }
@@ -305,6 +321,7 @@ public class DartGui {
     }
 
     private static void initPunkteComboBox() {
+        DartLogic dartLogic = DartLogic.getInstance();
         comboPunkte = new JComboBox<>();
         comboPunkte.setBounds(20, 47, 100, 20);
         comboPunkte.addItem(501);
@@ -314,7 +331,10 @@ public class DartGui {
             pointsToPlay = (int) comboPunkte.getSelectedItem();
             System.out.println(pointsToPlay);
             for (int i = 0; i < 3; i++) {
-                pointsRemaining[i].setText(Integer.toString(pointsToPlay));
+                pointsRemainingLabels[i].setText(Integer.toString(pointsToPlay));
+            }
+            for (DartSpieler dartSpieler : dartLogic.alleSpieler) {
+                dartSpieler.setPointsRemaining(pointsToPlay);
             }
         });
     }
@@ -333,9 +353,10 @@ public class DartGui {
     }
 
     private static JButton initResetButton() {
+        DartLogic dartLogic = DartLogic.getInstance();
         JButton button = new JButton("RESET");
         button.setBounds(10, 327, 89, 23);
-        button.addActionListener(e -> DartLogic.reset());
+        button.addActionListener(e -> dartLogic.reset());
         return button;
     }
 
@@ -348,12 +369,13 @@ public class DartGui {
     }
 
     private static void handleSaveButton() {
+        DartLogic dartLogic = DartLogic.getInstance();
+        dartLogic.aktuellerSpieler = dartLogic.alleSpieler[dartLogic.aktuellerSpielerIndex];
 
         //Überprüfen, ob jedes Feld ausgefüllt ist.
         if (ersterWurf.getText().isBlank() || zweiterWurf.getText().isBlank() || dritterWurf.getText().isBlank()) {
-            JOptionPane jOptionPane = new JOptionPane();
-            jOptionPane.createDialog("Es müssen alle drei Würfe eingetragen werden!");
-            jOptionPane.setVisible(true);
+            JOptionPane.showConfirmDialog(frameDartCounter, "Es muss für jeden Wurf ein Wert " +
+                    "eingetragen werden!");
             return;
         }
         boolean ueberworfen;
@@ -363,66 +385,68 @@ public class DartGui {
         comboBoxAnzahlSpieler.setEnabled(false);
         comboPunkte.setEnabled(false);
 
-        werte = DartLogic.tfToSumme();
+        werte = dartLogic.tfToSumme();
         //Wert größer 60 in ein Feld eingetragen.
         if (werte[0] == -1) return;
         //Überprüfen, ob nach diesem Zug der die nächste Punktzahl mit einem Double-out
         // beendet werden kann.
-        if (!DartLogic.checkFinishable(werte,
-                Integer.parseInt(pointsRemaining[aktuellerSpieler].getText()))) {
-            return;
-        }
 
 
         //werte zu den listen adden
-        alleWuerfe[aktuellerSpieler].add(werte[0]);
-        alleWuerfe[aktuellerSpieler].add(werte[1]);
-        alleWuerfe[aktuellerSpieler].add(werte[2]);
-        summen[aktuellerSpieler].add(werte[3]);
-
-        ueberworfen = DartLogic.checkUeberworfen(alleWuerfe[aktuellerSpieler]);
-        JOptionPane jOptionPane = new JOptionPane();
-        jOptionPane.createDialog("Leider ueberworfen!");
-        jOptionPane.setVisible(true);
-        System.out.println(ueberworfen);
-        if (!ueberworfen) {
-            pointsPlayed[aktuellerSpieler] += werte[3];
-
-            pointsRemaining[aktuellerSpieler].setText(Integer.toString(pointsToPlay - pointsPlayed[aktuellerSpieler]));
-            //average ausrechen
-            for (Object wert : summen[aktuellerSpieler]) {
-                average += (int) wert;
-            }
-
-            if (!summen[aktuellerSpieler].isEmpty()) {
-                average = average / summen[aktuellerSpieler].size();
-            }
-
-
-            //highest berechnen
-            if (hoechsterWurf[aktuellerSpieler] < werte[3]) {
-                hoechsterWurf[aktuellerSpieler] = werte[3];
-            }
+        dartLogic.aktuellerSpieler.addWuerfe(werte[0], werte[1], werte[2]);
+        boolean finishable = dartLogic.isFinishable();
+        if (!finishable) {
+            dartLogic.aktuellerSpieler.deleteLastThreeWuerfe();
+            JOptionPane.showConfirmDialog(frameDartCounter, "Die übrige Punktzahl kann mit " +
+                    "'Double Out' nicht geworfen werden!");
+            return;
         }
+
+        ueberworfen = DartLogic.checkUeberworfen(dartLogic.aktuellerSpieler.getAlleWuerfe());
+        System.out.println("Überworfen:" + ueberworfen);
+        if (ueberworfen) {
+            dartLogic.aktuellerSpieler.deleteLastThreeWuerfe();
+            JOptionPane.showConfirmDialog(frameDartCounter, "Leider überworfen!");
+            return;
+        }
+
+        dartLogic.aktuellerSpieler.updatePointsPlayed(werte[3]);
+        dartLogic.aktuellerSpieler.updatePointsRemaining(werte[3]);
+
+        pointsRemainingLabels[dartLogic.aktuellerSpielerIndex].setText(Integer.toString(dartLogic.aktuellerSpieler.getPointsRemaining()));
+
+        //average ausrechen
+        for (int wert : dartLogic.aktuellerSpieler.getAlleWuerfe()) {
+            average += wert;
+        }
+
+        if (!dartLogic.aktuellerSpieler.getAlleWuerfe().isEmpty()) {
+            average = average / dartLogic.aktuellerSpieler.getAlleWuerfe().size();
+        }
+
+        //highest berechnen
+        dartLogic.aktuellerSpieler.updateHoechsterWurf(werte[3]);
+
         //werte zu JTable einfügen.
-        DartLogic.addToTable(werte[3], average);
+        dartLogic.addToTable(werte[3], average);
 
 
         //spieler wechseln
-        aktuellerSpieler++;
-        if (aktuellerSpieler == anzahlSpieler) {
-            aktuellerSpieler = 0;
+
+        dartLogic.aktuellerSpielerIndex++;
+        if (dartLogic.aktuellerSpielerIndex == anzahlSpieler) {
+            dartLogic.aktuellerSpielerIndex = 0;
         }
+        dartLogic.aktuellerSpieler = dartLogic.alleSpieler[dartLogic.aktuellerSpielerIndex];
     }
 
-    private static JFrame initFrame() {
-        JFrame frameDartCounter = new JFrame();
+    private static void initFrame() {
+        frameDartCounter = new JFrame();
         frameDartCounter.getContentPane().setForeground(new Color(0, 0, 0));
         frameDartCounter.setFont(null);
         frameDartCounter.setForeground(new Color(255, 0, 51));
         frameDartCounter.setType(Type.POPUP);
         frameDartCounter.getContentPane().setBackground(new Color(153, 204, 255));
         frameDartCounter.getContentPane().setLayout(null);
-        return frameDartCounter;
     }
 }

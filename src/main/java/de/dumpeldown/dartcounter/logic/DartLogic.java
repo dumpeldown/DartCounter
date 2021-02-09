@@ -3,36 +3,49 @@ package de.dumpeldown.dartcounter.logic;
 import de.dumpeldown.dartcounter.gui.DartGui;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DartLogic {
-    public static boolean checkFinishable(int[] werte, int remaining) {
+    private static DartLogic dartLogic;
+
+    public int aktuellerSpielerIndex = 0;
+
+    public DartSpieler[] alleSpieler = new DartSpieler[]{
+            new DartSpieler()
+    };
+    public DartSpieler aktuellerSpieler = alleSpieler[0];
+
+    public static DartLogic getInstance() {
+        if (dartLogic == null) dartLogic = new DartLogic();
+        return dartLogic;
+    }
+
+    public boolean isFinishable() {
         if (DartGui.doubleOutEnabled) {
             return true;
         }
         //wenn die pointRemainign nach den geworfenen punkten 1 wäre, dann ist es nicht mit
         // double out finishable.
-        return remaining - Arrays.stream(werte).sum() != 1;
+        return (aktuellerSpieler.getPointsRemaining() - aktuellerSpieler.getSumOfLastThree()) != 1;
     }
 
-    public static void reset() {
-        DartGui.aktuellerSpieler = 0;
+    public void reset() {
+        aktuellerSpielerIndex = 0;
         DartGui.ersterWurf.setText("");
         DartGui.zweiterWurf.setText("");
         DartGui.dritterWurf.setText("");
         DartGui.tglDouble.setSelected(false);
         DartGui.tglTriple.setSelected(false);
-        for (int i = 0; i < 3; i++) {
-            DartGui.summen[i] = new ArrayList<>();
-            DartGui.alleWuerfe[i] = new ArrayList<>();
-            DartGui.pointsRemaining[i].setText(Integer.toString(DartGui.pointsToPlay));
-            DartGui.pointsPlayed[i] = 0;
+        for (DartSpieler dartSpieler : alleSpieler) {
+            dartSpieler = new DartSpieler();
+        }
+        for (JLabel label : DartGui.pointsRemainingLabels) {
+            label.setText("501");
         }
 
         DartGui.comboBoxAnzahlSpieler.setEnabled(true);
         DartGui.comboPunkte.setEnabled(true);
+        DartGui.comboPunkte.setSelectedIndex(0);
         for (int i = 0; i < 4; i++) {
             for (int p = 0; p < 3; p++) {
                 DartGui.statsTable.getModel().setValueAt(null, i, p);
@@ -40,12 +53,16 @@ public class DartLogic {
         }
     }
 
-    public static int[] tfToSumme() {
+    public int[] tfToSumme() {
         int werte[] = new int[4];
         int summe;
         int absFirst = 0, absSec = 0, absThird = 0;
-        if (Integer.parseInt(DartGui.ersterWurf.getText().replace("Double ", "")
-                .replace("Triple ", "")) > 60) {
+        //Prüfen, ob werte zwischen 0 und 20 eingegeben wurden.
+        if ((Integer.parseInt(DartGui.ersterWurf.getText().replace("Double ", "")
+                .replace("Triple ", "")) > 20) || Integer.parseInt(DartGui.ersterWurf.getText().replace("Double ", "")
+                .replace("Triple ", "")) < 0) {
+            JOptionPane.showConfirmDialog(DartGui.frameDartCounter, "Du hast ungültige Werte " +
+                    "eingetragen!");
             return new int[]{-1, -1, -1};
         }
 
@@ -93,26 +110,21 @@ public class DartLogic {
             System.out.println(i);
             gesamt += summen.get(i);
         }
-        System.out.println(gesamt + "," + DartGui.pointsRemaining[DartGui.aktuellerSpieler].getText());
-        if (gesamt > Integer.parseInt(DartGui.pointsRemaining[DartGui.aktuellerSpieler].getText())) {
-            //letzen werte wieder löschen
-            DartGui.alleWuerfe[DartGui.aktuellerSpieler].remove(DartGui.alleWuerfe[DartGui.aktuellerSpieler].size() - 1);
-            DartGui.alleWuerfe[DartGui.aktuellerSpieler].remove(DartGui.alleWuerfe[DartGui.aktuellerSpieler].size() - 1);
-            DartGui.alleWuerfe[DartGui.aktuellerSpieler].remove(DartGui.alleWuerfe[DartGui.aktuellerSpieler].size() - 1);
-            DartGui.summen[DartGui.aktuellerSpieler].remove(DartGui.summen[DartGui.aktuellerSpieler].size() - 1);
-            return true;
-        }
-        return false;
+        System.out.println(gesamt + "," + DartGui.pointsRemainingLabels[dartLogic.aktuellerSpielerIndex].getText());
+        return gesamt > Integer.parseInt(DartGui.pointsRemainingLabels[dartLogic.aktuellerSpielerIndex].getText());
     }
 
-    public static void addToTable(int summe, int average) {
+    public void addToTable(int summe, int average) {
         try {
-            DartGui.statsTable.getModel().setValueAt(summe, 0, DartGui.aktuellerSpieler);
-            DartGui.statsTable.getModel().setValueAt(average, 1, DartGui.aktuellerSpieler);
-            DartGui.statsTable.getModel().setValueAt(DartGui.hoechsterWurf[DartGui.aktuellerSpieler], 2, DartGui.aktuellerSpieler);
-            DartGui.statsTable.getModel().setValueAt(DartGui.alleWuerfe[DartGui.aktuellerSpieler].size(), 3, DartGui.aktuellerSpieler);
+            DartGui.statsTable.getModel().setValueAt(summe, 0, aktuellerSpielerIndex);
+            DartGui.statsTable.getModel().setValueAt(average, 1, aktuellerSpielerIndex);
+            DartGui.statsTable.getModel().setValueAt(aktuellerSpieler.hoechsterWurf, 2,
+                    aktuellerSpielerIndex);
+            DartGui.statsTable.getModel().setValueAt(aktuellerSpieler.alleWuerfe.size(), 3,
+                    aktuellerSpielerIndex);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Bitte gib ganze Zahlen als Werte ein!", "Fehlermeldung.", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showConfirmDialog(DartGui.frameDartCounter, "Bitte gib ganze Zahlen als Werte ein!",
+                    "Fehlermeldung.", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }
