@@ -3,12 +3,16 @@ package de.dumpeldown.dartcounter.logic;
 import de.dumpeldown.dartcounter.gui.DartGui;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 
 public class DartLogic {
     private static DartLogic dartLogic;
 
     public int aktuellerSpielerIndex = 0;
+    public int anzahlSpieler = 1;
+    public static boolean doubleOutEnabled;
+    public static int pointsToPlay = 501;
 
     public DartSpieler[] alleSpieler = new DartSpieler[]{
             new DartSpieler()
@@ -21,7 +25,7 @@ public class DartLogic {
     }
 
     public boolean isFinishable() {
-        if (!DartGui.doubleOutEnabled) {
+        if (!doubleOutEnabled) {
             return true;
         }
         //wenn die pointRemainign nach den geworfenen punkten 1 wäre, dann ist es nicht mit
@@ -34,20 +38,29 @@ public class DartLogic {
         DartGui.wuerfeTextFields[0].setText("");
         DartGui.wuerfeTextFields[1].setText("");
         DartGui.wuerfeTextFields[2].setText("");
+        DartGui.pointsRemainingLabels[0].setText("512");
+        DartGui.pointsRemainingLabels[0].setBorder(BorderFactory.createDashedBorder(Color.RED,
+                1.2f, 2f, 3, true));
+        DartGui.pointsRemainingLabels[1].setText("0");
+        DartGui.pointsRemainingLabels[2].setText("0");
+        DartGui.pointsRemainingLabels[0].setVisible(true);
+        DartGui.pointsRemainingLabels[1].setVisible(false);
+        DartGui.pointsRemainingLabels[2].setVisible(false);
         DartGui.tglDouble.setSelected(false);
         DartGui.tglTriple.setSelected(false);
-        for (DartSpieler dartSpieler : alleSpieler) {
-            dartSpieler = new DartSpieler();
-        }
-
-        for (JLabel label : DartGui.pointsRemainingLabels) {
-            label.setText("501");
-            label.setBorder(null);
-        }
 
         DartGui.comboBoxAnzahlSpieler.setEnabled(true);
+        DartGui.comboBoxAnzahlSpieler.setSelectedIndex(0);
+        DartGui.spielerTextFields[0].setText("Spieler 1");
+        DartGui.spielerTextFields[0].setEnabled(true);
+        DartGui.spielerTextFields[1].setText("");
+        DartGui.spielerTextFields[1].setEnabled(false);
+        DartGui.spielerTextFields[2].setText("");
+        DartGui.spielerTextFields[2].setEnabled(false);
+
         DartGui.comboPunkte.setEnabled(true);
         DartGui.comboPunkte.setSelectedIndex(0);
+        DartGui.checkBoxDoubleOut.setEnabled(true);
         for (int i = 0; i < 4; i++) {
             for (int p = 0; p < 3; p++) {
                 DartGui.statsTable.getModel().setValueAt(null, i, p);
@@ -56,13 +69,19 @@ public class DartLogic {
     }
 
     public int[] tfToSumme() {
-        int werte[] = new int[4];
+        int[] werte = new int[4];
         int summe;
         int absFirst = 0, absSec = 0, absThird = 0;
         //Prüfen, ob werte zwischen 0 und 20 eingegeben wurden.
-        if ((Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replace("Double ", "")
-                .replace("Triple ", "")) > 20) || Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replace("Double ", "")
-                .replace("Triple ", "")) < 0) {
+        try {
+            if ((Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replace("Double ", "")
+                    .replace("Triple ", "")) > 20) || Integer.parseInt(DartGui.wuerfeTextFields[0].getText().replace("Double ", "")
+                    .replace("Triple ", "")) < 0) {
+                JOptionPane.showMessageDialog(DartGui.frameDartCounter, "Du hast ungültige Werte " +
+                        "eingetragen!");
+                return new int[]{-1, -1, -1};
+            }
+        }catch(NumberFormatException e){
             JOptionPane.showMessageDialog(DartGui.frameDartCounter, "Du hast ungültige Werte " +
                     "eingetragen!");
             return new int[]{-1, -1, -1};
@@ -130,4 +149,11 @@ public class DartLogic {
         }
     }
 
+    public void setNextPlayer() {
+        dartLogic.aktuellerSpielerIndex++;
+        if (dartLogic.aktuellerSpielerIndex == anzahlSpieler) {
+            dartLogic.aktuellerSpielerIndex = 0;
+        }
+        dartLogic.aktuellerSpieler = dartLogic.alleSpieler[dartLogic.aktuellerSpielerIndex];
+    }
 }
