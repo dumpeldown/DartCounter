@@ -5,21 +5,22 @@ import de.dumpeldown.dartcounter.language.LanguageGerman;
 import de.dumpeldown.dartcounter.logic.DartLogic;
 import de.dumpeldown.dartcounter.logic.DartSpieler;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.Window.Type;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.OptionalDouble;
 
 public class DartGui {
     static JTable table;
-    static JTextField[] spielerTextFields;
+    public static JTextField[] spielerTextFields;
     public static JComboBox<String> languageComboBox;
-    public static boolean doubleOutEnabled;
-    public static int pointsToPlay = 501;
     public static JTable statsTable;
-    public static int anzahlSpieler = 1;
     public static JTextField[] wuerfeTextFields;
     public static JToggleButton tglDouble;
     public static JToggleButton tglTriple;
@@ -33,19 +34,15 @@ public class DartGui {
     static JLabel lblHighest;
     static JLabel lblWuerfe;
     static JLabel lblPunktzahl;
+    static JLabel themeLabel;
     static JButton resetButton;
     static JButton saveButton;
     public static JFrame frameDartCounter;
-    public static JLabel[] pointsRemainingLabels = new JLabel[]{new JLabel("0"), new JLabel("0"), new JLabel("0")};
+    public static JLabel[] pointsRemainingLabels = new JLabel[]{new JLabel("501"), new JLabel(""),
+            new JLabel("")};
 
-    //TODO:
-    // Gültige Werte?!
-    // nach überwerfen oder nicht finishable nächster Spieler
-    // pointsremaining nur fur die korrekte anzahl von spielern anzeigen.
-    // spieleranzahl und spielernamen mit reset löschen
-    // nach reset doubleCheckBox wieder aktivieren
-    // darkmode
-    public static void main(String[] args) {
+    public void start() {
+
         initFrame();
         initResetButton();
         initSaveButton();
@@ -63,6 +60,7 @@ public class DartGui {
         initPointsRemainingLabel();
         initWuerfeTextFields();
         initSpielerTextFields();
+        initDarkmodeImage();
 
         table = new JTable();
         table.setBounds(0, 0, 0, 0);
@@ -108,12 +106,45 @@ public class DartGui {
         frameDartCounter.getContentPane().add(resetButton);
         frameDartCounter.getContentPane().add(pointsRemainingLabels[2]);
         frameDartCounter.getContentPane().add(languageComboBox);
+        frameDartCounter.getContentPane().add(themeLabel);
 
         frameDartCounter.setVisible(true);
         frameDartCounter.setSize(600, 400);
         frameDartCounter.setTitle("DartCounter by dumpeldown");
         frameDartCounter.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         handleLanguageChange();
+    }
+
+    private void initDarkmodeImage() {
+        BufferedImage img = null;
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        InputStream is = classloader.getResourceAsStream("brightmode.png");
+        try {
+            img = ImageIO.read(is);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+        ImageIcon icon = new ImageIcon(img);
+        themeLabel = new JLabel(icon);
+        themeLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+
+                if (frameDartCounter.getContentPane().getBackground().getBlue() == 98) {
+                    //darkmode is enabled, enable bright mode
+                    frameDartCounter.getContentPane().setForeground(new Color(0, 0, 0));
+                    frameDartCounter.setForeground(new Color(255, 0, 51));
+                    frameDartCounter.getContentPane().setBackground(new Color(153, 204, 255));
+                    checkBoxDoubleOut.setBackground(new Color(153, 204, 255));
+                } else {
+                    //brightmode is enable, enable dark mode.
+                    frameDartCounter.getContentPane().setForeground(new Color(255, 255, 255));
+                    frameDartCounter.setForeground(new Color(255, 0, 51));
+                    frameDartCounter.getContentPane().setBackground(new Color(98, 98, 98));
+                    checkBoxDoubleOut.setBackground(new Color(98, 98, 98));
+                }
+            }
+        });
+        themeLabel.setBounds(555, 327, 25, 25);
     }
 
     private static void initLanguageCheckBox() {
@@ -126,8 +157,8 @@ public class DartGui {
 
     private static void handleLanguageChange() {
         String lang = languageComboBox.getModel().getSelectedItem().toString();
-        switch(lang){
-            case "English":
+        switch (lang) {
+            case "English" -> {
                 LanguageEnglish ENGLISH = LanguageEnglish.getInstance();
                 lblWuerfe.setText(ENGLISH.anzahlWuerfe);
                 lblAverage.setText(ENGLISH.durchschnitt);
@@ -137,8 +168,8 @@ public class DartGui {
                 lblPunktzahl.setText(ENGLISH.punktzahl);
                 saveButton.setText(ENGLISH.speichern);
                 resetButton.setText(ENGLISH.reset);
-                break;
-            case "Deutsch":
+            }
+            case "Deutsch" -> {
                 LanguageGerman DEUTSCH = LanguageGerman.getInstance();
                 lblWuerfe.setText(DEUTSCH.anzahlWuerfe);
                 lblAverage.setText(DEUTSCH.durchschnitt);
@@ -148,7 +179,7 @@ public class DartGui {
                 lblPunktzahl.setText(DEUTSCH.punktzahl);
                 saveButton.setText(DEUTSCH.speichern);
                 resetButton.setText(DEUTSCH.reset);
-                break;
+            }
         }
     }
 
@@ -158,14 +189,16 @@ public class DartGui {
                 initSpieler2TextField(),
                 initSpieler3TextField()
         };
-        for(JTextField jTextField : spielerTextFields){
+        for (JTextField jTextField : spielerTextFields) {
             jTextField.addFocusListener(new FocusListener() {
                 @Override
                 public void focusGained(FocusEvent e) {
                     jTextField.setText("");
                 }
+
                 @Override
-                public void focusLost(FocusEvent e) { }
+                public void focusLost(FocusEvent e) {
+                }
             });
         }
     }
@@ -176,7 +209,7 @@ public class DartGui {
                 initZweiterWurfTextField(),
                 initDritterWurfTextField()
         };
-        for(JTextField jTextField : wuerfeTextFields){
+        for (JTextField jTextField : wuerfeTextFields) {
             jTextField.addKeyListener(new KeyListener() {
 
                 @Override
@@ -261,7 +294,10 @@ public class DartGui {
                 spielerTextFields[1].setText("Spieler 2");
                 spielerTextFields[2].setEnabled(false);
                 spielerTextFields[2].setText("Spieler 3");
-                anzahlSpieler = 1;
+                pointsRemainingLabels[0].setVisible(true);
+                pointsRemainingLabels[1].setVisible(false);
+                pointsRemainingLabels[2].setVisible(false);
+                dartLogic.anzahlSpieler = 1;
                 dartLogic.alleSpieler = new DartSpieler[]{
                         new DartSpieler()
                 };
@@ -273,7 +309,10 @@ public class DartGui {
                 spielerTextFields[1].setText("Spieler 2");
                 spielerTextFields[2].setEnabled(false);
                 spielerTextFields[2].setText("Spieler 3");
-                anzahlSpieler = 2;
+                pointsRemainingLabels[0].setVisible(true);
+                pointsRemainingLabels[1].setVisible(true);
+                pointsRemainingLabels[2].setVisible(false);
+                dartLogic.anzahlSpieler = 2;
                 dartLogic.alleSpieler = new DartSpieler[]{
                         new DartSpieler(),
                         new DartSpieler()
@@ -286,14 +325,16 @@ public class DartGui {
                 spielerTextFields[1].setText("Spieler 2");
                 spielerTextFields[2].setEnabled(true);
                 spielerTextFields[2].setText("Spieler 3");
-                anzahlSpieler = 3;
+                pointsRemainingLabels[0].setVisible(true);
+                pointsRemainingLabels[1].setVisible(true);
+                pointsRemainingLabels[2].setVisible(true);
+                dartLogic.anzahlSpieler = 3;
                 dartLogic.alleSpieler = new DartSpieler[]{
                         new DartSpieler(),
                         new DartSpieler(),
                         new DartSpieler()
                 };
             }
-            default -> System.out.println("DartGui.handleComboBox: DEFAÚLT CASE");
         }
     }
 
@@ -358,13 +399,12 @@ public class DartGui {
         comboPunkte.addItem(301);
         comboPunkte.setSelectedIndex(0);
         comboPunkte.addActionListener(e -> {
-            pointsToPlay = (int) comboPunkte.getSelectedItem();
-            System.out.println(pointsToPlay);
+            DartLogic.pointsToPlay = (int) comboPunkte.getModel().getSelectedItem();
             for (int i = 0; i < 3; i++) {
-                pointsRemainingLabels[i].setText(Integer.toString(pointsToPlay));
+                pointsRemainingLabels[i].setText(Integer.toString(DartLogic.pointsToPlay));
             }
             for (DartSpieler dartSpieler : dartLogic.alleSpieler) {
-                dartSpieler.setPointsRemaining(pointsToPlay);
+                dartSpieler.setPointsRemaining(DartLogic.pointsToPlay);
             }
         });
     }
@@ -373,7 +413,8 @@ public class DartGui {
         checkBoxDoubleOut = new JCheckBox("Double Out");
         checkBoxDoubleOut.setBounds(131, 46, 100, 23);
         checkBoxDoubleOut.setBackground(new Color(153, 204, 255));
-        checkBoxDoubleOut.addActionListener(e -> doubleOutEnabled = checkBoxDoubleOut.isSelected());
+        checkBoxDoubleOut.addActionListener(e -> DartLogic.doubleOutEnabled =
+                checkBoxDoubleOut.isSelected());
     }
 
     private static void initPunktzahlLabel() {
@@ -419,7 +460,6 @@ public class DartGui {
         if (werte[0] == -1) return;
 
 
-
         //werte zu den listen adden
         dartLogic.aktuellerSpieler.addWuerfe(werte[0], werte[1], werte[2]);
 
@@ -428,6 +468,7 @@ public class DartGui {
         boolean finishable = dartLogic.isFinishable();
         if (!finishable) {
             dartLogic.aktuellerSpieler.deleteLastThreeWuerfe();
+            dartLogic.setNextPlayer();
             JOptionPane.showMessageDialog(frameDartCounter, "Die übrige Punktzahl kann mit " +
                     "'Double Out' nicht geworfen werden!");
             return;
@@ -437,6 +478,7 @@ public class DartGui {
         System.out.println("Überworfen:" + ueberworfen);
         if (ueberworfen) {
             dartLogic.aktuellerSpieler.deleteLastThreeWuerfe();
+            dartLogic.setNextPlayer();
             JOptionPane.showMessageDialog(frameDartCounter, "Leider überworfen!");
             return;
         }
@@ -449,7 +491,7 @@ public class DartGui {
         //average ausrechen
         average = dartLogic.aktuellerSpieler.getAlleWuerfe().stream()
                 .mapToInt(Integer::intValue).average();
-        if(average.isEmpty()){
+        if (average.isEmpty()) {
             JOptionPane.showMessageDialog(DartGui.frameDartCounter, "Fehler beim Ausrechnen des " +
                     "Durchschnitts.");
             average = OptionalDouble.of(0.0);
@@ -459,14 +501,10 @@ public class DartGui {
         dartLogic.aktuellerSpieler.updateHoechsterWurf(werte[3]);
 
         //werte zu JTable einfügen, average mit 2 dizimal stellen.
-        dartLogic.addToTable(werte[3],  Math.floor(average.getAsDouble() * 100) / 100);
+        dartLogic.addToTable(werte[3], Math.floor(average.getAsDouble() * 100) / 100);
 
         //spieler wechseln
-        dartLogic.aktuellerSpielerIndex++;
-        if (dartLogic.aktuellerSpielerIndex == anzahlSpieler) {
-            dartLogic.aktuellerSpielerIndex = 0;
-        }
-        dartLogic.aktuellerSpieler = dartLogic.alleSpieler[dartLogic.aktuellerSpielerIndex];
+        dartLogic.setNextPlayer();
 
         //Reset Borders und nur für den nächsten Spieler setzen.
         for (JLabel label : pointsRemainingLabels) {
@@ -474,7 +512,7 @@ public class DartGui {
         }
         pointsRemainingLabels[dartLogic.aktuellerSpielerIndex].setBorder(BorderFactory.createDashedBorder(Color.RED, 1.2f, 2f,
                 3, true));
-        for(JTextField jTextField : wuerfeTextFields){
+        for (JTextField jTextField : wuerfeTextFields) {
             jTextField.setText("");
         }
     }
