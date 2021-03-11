@@ -17,29 +17,30 @@ import java.io.InputStream;
 import java.util.OptionalDouble;
 
 public class DartGui {
-    static JTable table;
+
     public static JTextField[] spielerTextFields;
-    public static JComboBox<String> languageComboBox;
-    public static JTable statsTable;
     public static JTextField[] wuerfeTextFields;
+    private static JComboBox<String> languageComboBox;
+    public static JComboBox<Integer> comboPunkte;
+    public static JComboBox<Integer> comboBoxAnzahlSpieler;
+    public static JCheckBox checkBoxDoubleOut;
+    private static JTable table;
+    public static JTable statsTable;
     public static JToggleButton tglDouble;
     public static JToggleButton tglTriple;
-    public static DefaultTableModel statsModel;
-    public static JComboBox<Integer> comboPunkte;
-    public static JCheckBox checkBoxDoubleOut;
-    public static JComboBox<Integer> comboBoxAnzahlSpieler;
-    public static JLabel lblAnzahlDerSpieler;
-    static JLabel lblLast;
-    static JLabel lblAverage;
-    static JLabel lblHighest;
-    static JLabel lblWuerfe;
-    static JLabel lblPunktzahl;
-    static JLabel themeLabel;
-    static JButton resetButton;
-    static JButton saveButton;
-    public static JFrame frameDartCounter;
+    private static JLabel lblAnzahlDerSpieler;
+    private static JLabel lblLast;
+    private static JLabel lblAverage;
+    private static JLabel lblHighest;
+    private static JLabel lblWuerfe;
+    private static JLabel lblPunktzahl;
+    private static JLabel themeLabel;
+    private static JButton resetButton;
+    private static JButton saveButton;
+    private static DefaultTableModel statsModel;
     public static JLabel[] pointsRemainingLabels = new JLabel[]{new JLabel("501"), new JLabel(""),
             new JLabel("")};
+    public static JFrame frameDartCounter;
 
     public void start() {
 
@@ -158,7 +159,7 @@ public class DartGui {
     private static void handleLanguageChange() {
         String lang = languageComboBox.getModel().getSelectedItem().toString();
         switch (lang) {
-            case "English" -> {
+            case "English":
                 LanguageEnglish ENGLISH = LanguageEnglish.getInstance();
                 lblWuerfe.setText(ENGLISH.anzahlWuerfe);
                 lblAverage.setText(ENGLISH.durchschnitt);
@@ -168,8 +169,8 @@ public class DartGui {
                 lblPunktzahl.setText(ENGLISH.punktzahl);
                 saveButton.setText(ENGLISH.speichern);
                 resetButton.setText(ENGLISH.reset);
-            }
-            case "Deutsch" -> {
+                break;
+            case "Deutsch":
                 LanguageGerman DEUTSCH = LanguageGerman.getInstance();
                 lblWuerfe.setText(DEUTSCH.anzahlWuerfe);
                 lblAverage.setText(DEUTSCH.durchschnitt);
@@ -179,7 +180,7 @@ public class DartGui {
                 lblPunktzahl.setText(DEUTSCH.punktzahl);
                 saveButton.setText(DEUTSCH.speichern);
                 resetButton.setText(DEUTSCH.reset);
-            }
+                break;
         }
     }
 
@@ -223,10 +224,14 @@ public class DartGui {
                         }
                     }
                 }
+
                 @Override
-                public void keyPressed(KeyEvent e) {}
+                public void keyPressed(KeyEvent e) {
+                }
+
                 @Override
-                public void keyReleased(KeyEvent e) {}
+                public void keyReleased(KeyEvent e) {
+                }
             });
         }
     }
@@ -287,13 +292,13 @@ public class DartGui {
         DartLogic dartLogic = DartLogic.getInstance();
 
         switch (comboBoxAnzahlSpieler.getSelectedIndex() + 1) {
-            case 1 -> {
+            case 1:
                 spielerTextFields[0].setEnabled(true);
-                spielerTextFields[0].setText("Spieler 1");
+                spielerTextFields[0].setText("Player 1");
                 spielerTextFields[1].setEnabled(false);
-                spielerTextFields[1].setText("Spieler 2");
+                spielerTextFields[1].setText("Player 2");
                 spielerTextFields[2].setEnabled(false);
-                spielerTextFields[2].setText("Spieler 3");
+                spielerTextFields[2].setText("Player 3");
                 pointsRemainingLabels[0].setVisible(true);
                 pointsRemainingLabels[1].setVisible(false);
                 pointsRemainingLabels[2].setVisible(false);
@@ -301,8 +306,8 @@ public class DartGui {
                 dartLogic.alleSpieler = new DartSpieler[]{
                         new DartSpieler()
                 };
-            }
-            case 2 -> {
+                break;
+            case 2:
                 spielerTextFields[0].setEnabled(true);
                 spielerTextFields[0].setText("Spieler 1");
                 spielerTextFields[1].setEnabled(true);
@@ -317,8 +322,8 @@ public class DartGui {
                         new DartSpieler(),
                         new DartSpieler()
                 };
-            }
-            case 3 -> {
+                break;
+            case 3:
                 spielerTextFields[0].setEnabled(true);
                 spielerTextFields[0].setText("Spieler 1");
                 spielerTextFields[1].setEnabled(true);
@@ -334,7 +339,7 @@ public class DartGui {
                         new DartSpieler(),
                         new DartSpieler()
                 };
-            }
+                break;
         }
     }
 
