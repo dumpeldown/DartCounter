@@ -6,11 +6,23 @@
 
     <groupId>de.dumpeldown</groupId>
     <artifactId>DartCounter</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2.0</version>
 
     <properties>
-        <maven.compiler.source>14</maven.compiler.source>
-        <maven.compiler.target>14</maven.compiler.target>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
     </properties>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <mainClass>de.dumpeldown.dartcounter.starter.Starter</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
