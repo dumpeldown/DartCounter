@@ -1,6 +1,6 @@
 # DartCounter
-Simple Dart Counter implemented in Java Swing
-
+## Simple Dart Counter implemented in Java Swing
+![Screenshot of DartCounter](https://i.imgur.com/rOUEFdF.png)
 ## Supported Darts Gamemodes
 - Up to 3 players
 - Play from 301 or 501
@@ -11,9 +11,10 @@ Other functionality:
 - Change Language between English & German
 - Toogle Darkmode
 
+---
 ## Build & run
-
-Import as Maven project.
-Compile using JDK 14 or newer.
-Run the Starter.
+In the root directory, run
+````bash
+> mvn exec:java
+````
 
